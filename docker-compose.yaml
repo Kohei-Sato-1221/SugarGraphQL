@@ -1,0 +1,25 @@
+version: '3.3'
+services:
+
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    container_name: graphqldb
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --sql-mode=ONLY_FULL_GROUP_BY,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+    environment:
+        MYSQL_ROOT_USER: root
+        MYSQL_ROOT_PASSWORD: pass
+        MYSQL_USER: docker
+        MYSQL_PASSWORD: pass
+        MYSQL_DATABASE: graphqldb
+        TZ: 'Asia/Tokyo'
+    ports:
+    - "3306:3306"
+    volumes:
+      - db-volume:/var/lib/mysql
+
+volumes:
+  db-volume:

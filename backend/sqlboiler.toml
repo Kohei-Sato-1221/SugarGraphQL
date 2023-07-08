@@ -1,0 +1,13 @@
+pkgname="db"
+output="graph/db"
+wipe=true
+add-global-variants=false
+no-tests=true
+
+[mysql]
+  dbname="graphqldb"
+  host="localhost"
+  port=3306
+  user="root"
+  pass="pass"  
+  sslmode="false"
