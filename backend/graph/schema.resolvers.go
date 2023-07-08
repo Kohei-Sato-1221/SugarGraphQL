@@ -6,26 +6,52 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/graph/model"
+	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated"
+	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated/model"
 )
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
+	return &model.Todo{
+		ID:   "TODO-3",
+		Text: input.Text,
+		User: &model.User{
+			ID:   input.UserID,
+			Name: "name",
+		},
+	}, nil
 }
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
+	return []*model.Todo{
+		{
+			ID:   "TODO-1",
+			Text: "My Todo 1",
+			User: &model.User{
+				ID:   "User-1",
+				Name: "kohekohe",
+			},
+			Done: true,
+		},
+		{
+			ID:   "TODO-2",
+			Text: "My Todo 2",
+			User: &model.User{
+				ID:   "User-1",
+				Name: "kanakonda",
+			},
+			Done: false,
+		},
+	}, nil
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+// Mutation returns generated.MutationResolver implementation.
+func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+// Query returns generated.QueryResolver implementation.
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
