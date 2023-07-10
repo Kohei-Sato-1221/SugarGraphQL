@@ -88,3 +88,22 @@ models:
   DateTime:
     model:
       - github.com/99designs/gqlgen/graphql.Time
+  URI:
+    model:
+      - github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated/model.URI
+  Repository:
+    fields:
+      owner:
+        resolver: true
+      issue:
+        resolver: true
+      issues:
+        resolver: true
+      pullRequest:
+        resolver: true
+      pullRequests:
+        resolver: true
+  ProjectV2:
+    fields:
+      owner:
+        resolver: true

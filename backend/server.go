@@ -23,7 +23,7 @@ func main() {
 		port = defaultPort
 	}
 
-	db, err := sql.Open("mysql", "root:pass@(localhost:3306)/graphqldb")
+	db, err := sql.Open("mysql", "root:pass@(localhost:3306)/graphqldb?parseTime=true")
 	if err != nil {
 		panic("failed to get db connection")
 	}

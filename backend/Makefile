@@ -1,6 +1,6 @@
 gen:
-	gqlgen generate
 	sqlboiler mysql
+	gqlgen generate
 
 run:
 	go run ./server.go
