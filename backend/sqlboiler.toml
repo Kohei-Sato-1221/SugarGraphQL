@@ -1,7 +1,8 @@
 pkgname="db"
 output="graph/db"
 wipe=true
-add-global-variants=false
+add-global-variants=true
+debug=true
 no-tests=true
 
 [mysql]

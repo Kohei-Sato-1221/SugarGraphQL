@@ -8,4 +8,5 @@ import "github.com/Kohei-Sato-1221/SugarGraphQL/backend/graph/services"
 
 type Resolver struct {
 	Srv services.Services
+	*Loaders
 }

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -18,6 +19,7 @@ import (
 const defaultPort = "8080"
 
 func main() {
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
@@ -29,18 +31,22 @@ func main() {
 	}
 	defer db.Close()
 
+	//SQLBoilerのデバッグ出力を有効化
+	boil.DebugMode = true
+
 	service := services.New(db)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: &graph.Resolver{
-			Srv: service,
+			Srv:     service,
+			Loaders: graph.NewLoaders(service),
 		},
 		Directives: graph.Directive,
 	}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
-
+	// SQLBoilerによって発行されるSQLクエリをログ出力させるデバッグオプション
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

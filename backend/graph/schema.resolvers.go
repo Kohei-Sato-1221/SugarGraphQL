@@ -12,11 +12,23 @@ import (
 
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated"
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated/model"
+	"github.com/graph-gophers/dataloader"
 )
 
 // Author is the resolver for the author field.
 func (r *issueResolver) Author(ctx context.Context, obj *model.Issue) (*model.User, error) {
-	return r.Srv.GetUserByID(ctx, obj.Author.ID)
+	// 1. Loaderに検索条件となるIDを登録(この時点では即時実行されない)
+	thunk := r.Loaders.UserLoader.Load(ctx, dataloader.StringKey(obj.Author.ID))
+	// 2. LoaderがDBに対してデータ取得処理を実行するまで待って、結果を受け取る
+	result, err := thunk()
+	if err != nil {
+		return nil, err
+	}
+	user := result.(*model.User)
+	return user, nil
+
+	// N+1問題対処前
+	// return r.Srv.GetUserByID(ctx, obj.Author.ID)
 }
 
 // Repository is the resolver for the repository field.
