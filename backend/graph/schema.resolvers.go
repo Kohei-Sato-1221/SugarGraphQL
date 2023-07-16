@@ -6,7 +6,9 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated"
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated/model"
@@ -53,7 +55,23 @@ func (r *queryResolver) User(ctx context.Context, name string) (*model.User, err
 
 // Node is the resolver for the node field.
 func (r *queryResolver) Node(ctx context.Context, id string) (model.Node, error) {
-	panic(fmt.Errorf("not implemented: Node - node"))
+	nElems := strings.SplitN(id, "_", 2)
+	nType, _ := nElems[0], nElems[1]
+
+	switch nType {
+	case "U":
+		return r.Srv.GetUserByID(ctx, id)
+	case "REPO":
+		return r.Srv.GetRepoByID(ctx, id)
+	case "ISSUE":
+		return r.Srv.GetIssue(ctx, id)
+	case "PJ":
+		return r.Srv.GetProjectByID(ctx, id)
+	case "PR":
+		return r.Srv.GetPullRequestByID(ctx, id)
+	default:
+		return nil, errors.New("invalid ID")
+	}
 }
 
 // Issue is the resolver for the issue field.
@@ -73,7 +91,7 @@ func (r *repositoryResolver) Issue(ctx context.Context, obj *model.Repository, n
 
 // Issues is the resolver for the issues field.
 func (r *repositoryResolver) Issues(ctx context.Context, obj *model.Repository, after *string, before *string, first *int, last *int) (*model.IssueConnection, error) {
-	return r.Srv.GetIssues(ctx, obj.ID, *after, *before, *first, *last)
+	return r.Srv.ListIssueInRepository(ctx, obj.ID, after, before, first, last)
 }
 
 // PullRequest is the resolver for the pullRequest field.

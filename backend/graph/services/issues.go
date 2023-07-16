@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated/model"
@@ -35,6 +36,7 @@ func (i *issueService) GetIssueByRepoAndNumber(ctx context.Context, repoID strin
 }
 
 func (i *issueService) GetIssues(ctx context.Context, repoID string, after, before string, first, last int) (*model.IssueConnection, error) {
+	fmt.Println("GetIssues")
 	cond := []qm.QueryMod{
 		qm.Select(
 			db.IssueColumns.ID,
@@ -72,6 +74,95 @@ func (i *issueService) GetIssue(ctx context.Context, id string) (*model.Issue, e
 		return nil, err
 	}
 	return convertIssue(issue), nil
+}
+
+func (i *issueService) ListIssueInRepository(ctx context.Context, repoID string, after *string, before *string, first *int, last *int) (*model.IssueConnection, error) {
+	cond := []qm.QueryMod{
+		qm.Select(
+			db.IssueColumns.ID,
+			db.IssueColumns.URL,
+			db.IssueColumns.Title,
+			db.IssueColumns.Closed,
+			db.IssueColumns.Number,
+			db.IssueColumns.Author,
+			db.IssueColumns.Repository,
+		),
+		db.IssueWhere.Repository.EQ(repoID),
+	}
+	var scanDesc bool
+
+	switch {
+	case (after != nil) && (before != nil):
+		cond = append(cond, db.IssueWhere.ID.GT(*after), db.IssueWhere.ID.LT(*before))
+	case after != nil:
+		cond = append(cond,
+			db.IssueWhere.ID.GT(*after),
+			qm.OrderBy(fmt.Sprintf("%s asc", db.IssueColumns.ID)),
+		)
+		if first != nil {
+			cond = append(cond, qm.Limit(*first))
+		}
+	case before != nil:
+		scanDesc = true
+		cond = append(cond,
+			db.IssueWhere.ID.LT(*before),
+			qm.OrderBy(fmt.Sprintf("%s desc", db.IssueColumns.ID)),
+		)
+		if last != nil {
+			cond = append(cond, qm.Limit(*last))
+		}
+	default:
+		switch {
+		case last != nil:
+			scanDesc = true
+			cond = append(cond,
+				qm.OrderBy(fmt.Sprintf("%s desc", db.IssueColumns.ID)),
+				qm.Limit(*last),
+			)
+		case first != nil:
+			cond = append(cond,
+				qm.OrderBy(fmt.Sprintf("%s asc", db.IssueColumns.ID)),
+				qm.Limit(*first),
+			)
+		default:
+			cond = append(cond,
+				qm.OrderBy(fmt.Sprintf("%s asc", db.IssueColumns.ID)),
+			)
+		}
+	}
+
+	issues, err := db.Issues(cond...).All(ctx, i.exec)
+	if err != nil {
+		return nil, err
+	}
+
+	var hasNextPage, hasPrevPage bool
+	if len(issues) != 0 {
+		if scanDesc {
+			for i, j := 0, len(issues)-1; i < j; i, j = i+1, j-1 {
+				issues[i], issues[j] = issues[j], issues[i]
+			}
+		}
+		startCursor, endCursor := issues[0].ID, issues[len(issues)-1].ID
+
+		var err error
+		hasPrevPage, err = db.Issues(
+			db.IssueWhere.Repository.EQ(repoID),
+			db.IssueWhere.ID.LT(startCursor),
+		).Exists(ctx, i.exec)
+		if err != nil {
+			return nil, err
+		}
+		hasNextPage, err = db.Issues(
+			db.IssueWhere.Repository.EQ(repoID),
+			db.IssueWhere.ID.GT(endCursor),
+		).Exists(ctx, i.exec)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return convertIssueConnection(issues, hasPrevPage, hasNextPage), nil
 }
 
 func convertIssue(issue *db.Issue) *model.Issue {

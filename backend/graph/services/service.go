@@ -12,6 +12,7 @@ type Services interface {
 	RepositoryService
 	IssueService
 	PrService
+	ProjectService
 	ProjectItemService
 }
 
@@ -22,6 +23,7 @@ func New(exec boil.ContextExecutor) Services {
 		repositoryService:  &repositoryService{exec: exec},
 		issueService:       &issueService{exec: exec},
 		prService:          &prService{exec: exec},
+		projectService:     &projectService{exec: exec},
 		projectItemService: &projectItemService{exec: exec},
 	}
 }
@@ -31,6 +33,7 @@ type services struct {
 	*repositoryService
 	*issueService
 	*prService
+	*projectService
 	*projectItemService
 }
 
@@ -48,6 +51,7 @@ type IssueService interface {
 	GetIssue(ctx context.Context, id string) (*model.Issue, error)
 	GetIssueByRepoAndNumber(ctx context.Context, repoID string, number int) (*model.Issue, error)
 	GetIssues(ctx context.Context, repoID string, after, before string, first, last int) (*model.IssueConnection, error)
+	ListIssueInRepository(ctx context.Context, repoID string, after *string, before *string, first *int, last *int) (*model.IssueConnection, error)
 }
 
 type PrService interface {
@@ -57,4 +61,7 @@ type PrService interface {
 
 type ProjectItemService interface {
 	ListProjectItemOwnedByIssue(ctx context.Context, issueID string, after *string, before *string, first *int, last *int) (*model.ProjectV2ItemConnection, error)
+}
+type ProjectService interface {
+	GetProjectByID(ctx context.Context, id string) (*model.ProjectV2, error)
 }
