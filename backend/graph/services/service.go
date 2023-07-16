@@ -12,15 +12,17 @@ type Services interface {
 	RepositoryService
 	IssueService
 	PrService
+	ProjectItemService
 }
 
 // sql.DBはboil.ContextExecutorの具象として利用可能
 func New(exec boil.ContextExecutor) Services {
 	return &services{
-		userService:       &userService{exec: exec},
-		repositoryService: &repositoryService{exec: exec},
-		issueService:      &issueService{exec: exec},
-		prService:         &prService{exec: exec},
+		userService:        &userService{exec: exec},
+		repositoryService:  &repositoryService{exec: exec},
+		issueService:       &issueService{exec: exec},
+		prService:          &prService{exec: exec},
+		projectItemService: &projectItemService{exec: exec},
 	}
 }
 
@@ -29,6 +31,7 @@ type services struct {
 	*repositoryService
 	*issueService
 	*prService
+	*projectItemService
 }
 
 type UserService interface {
@@ -42,6 +45,7 @@ type RepositoryService interface {
 }
 
 type IssueService interface {
+	GetIssue(ctx context.Context, id string) (*model.Issue, error)
 	GetIssueByRepoAndNumber(ctx context.Context, repoID string, number int) (*model.Issue, error)
 	GetIssues(ctx context.Context, repoID string, after, before string, first, last int) (*model.IssueConnection, error)
 }
@@ -49,4 +53,8 @@ type IssueService interface {
 type PrService interface {
 	GetPullRequestByID(ctx context.Context, id string) (*model.PullRequest, error)
 	ListPullRequestInRepository(ctx context.Context, repoID, after, before string, first, last int) (*model.PullRequestConnection, error)
+}
+
+type ProjectItemService interface {
+	ListProjectItemOwnedByIssue(ctx context.Context, issueID string, after *string, before *string, first *int, last *int) (*model.ProjectV2ItemConnection, error)
 }

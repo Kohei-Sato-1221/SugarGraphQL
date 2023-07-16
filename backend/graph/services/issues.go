@@ -53,8 +53,27 @@ func (i *issueService) GetIssues(ctx context.Context, repoID string, after, befo
 	}
 	return convertIssueConnection(issues, false, false), nil
 	// return convertIssueConnection(issues, hasPrevPage, hasNextPage), nil
-
 }
+
+func (i *issueService) GetIssue(ctx context.Context, id string) (*model.Issue, error) {
+	issue, err := db.Issues(
+		qm.Select(
+			db.IssueColumns.ID,
+			db.IssueColumns.URL,
+			db.IssueColumns.Title,
+			db.IssueColumns.Closed,
+			db.IssueColumns.Number,
+			db.IssueColumns.Author,
+			db.IssueColumns.Repository,
+		),
+		db.IssueWhere.ID.EQ(id),
+	).One(ctx, i.exec)
+	if err != nil {
+		return nil, err
+	}
+	return convertIssue(issue), nil
+}
+
 func convertIssue(issue *db.Issue) *model.Issue {
 	issueURL, err := model.UnmarshalURI(issue.URL)
 	if err != nil {

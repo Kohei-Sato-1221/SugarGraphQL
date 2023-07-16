@@ -12,6 +12,21 @@ import (
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated/model"
 )
 
+// Author is the resolver for the author field.
+func (r *issueResolver) Author(ctx context.Context, obj *model.Issue) (*model.User, error) {
+	return r.Srv.GetUserByID(ctx, obj.Author.ID)
+}
+
+// Repository is the resolver for the repository field.
+func (r *issueResolver) Repository(ctx context.Context, obj *model.Issue) (*model.Repository, error) {
+	return r.Srv.GetRepoByID(ctx, obj.Repository.ID)
+}
+
+// ProjectItems is the resolver for the projectItems field.
+func (r *issueResolver) ProjectItems(ctx context.Context, obj *model.Issue, after *string, before *string, first *int, last *int) (*model.ProjectV2ItemConnection, error) {
+	return r.Srv.ListProjectItemOwnedByIssue(ctx, obj.ID, after, before, first, last)
+}
+
 // AddProjectV2ItemByID is the resolver for the addProjectV2ItemById field.
 func (r *mutationResolver) AddProjectV2ItemByID(ctx context.Context, input model.AddProjectV2ItemByIDInput) (*model.AddProjectV2ItemByIDPayload, error) {
 	panic(fmt.Errorf("not implemented: AddProjectV2ItemByID - addProjectV2ItemById"))
@@ -41,6 +56,11 @@ func (r *queryResolver) Node(ctx context.Context, id string) (model.Node, error)
 	panic(fmt.Errorf("not implemented: Node - node"))
 }
 
+// Issue is the resolver for the issue field.
+func (r *queryResolver) Issue(ctx context.Context, id string) (*model.Issue, error) {
+	return r.Srv.GetIssue(ctx, id)
+}
+
 // Owner is the resolver for the owner field.
 func (r *repositoryResolver) Owner(ctx context.Context, obj *model.Repository) (*model.User, error) {
 	return r.Srv.GetUserByID(ctx, obj.Owner.ID)
@@ -66,6 +86,9 @@ func (r *repositoryResolver) PullRequests(ctx context.Context, obj *model.Reposi
 	panic(fmt.Errorf("not implemented: PullRequests - pullRequests"))
 }
 
+// Issue returns generated.IssueResolver implementation.
+func (r *Resolver) Issue() generated.IssueResolver { return &issueResolver{r} }
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
@@ -78,6 +101,7 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 // Repository returns generated.RepositoryResolver implementation.
 func (r *Resolver) Repository() generated.RepositoryResolver { return &repositoryResolver{r} }
 
+type issueResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type projectV2Resolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

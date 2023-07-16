@@ -169,8 +169,12 @@ type Query {
   node(
     id: ID!
   ): Node
-
+  
+  issue (
+    id: ID!
+  ): Issue
 }
+
 
 input AddProjectV2ItemByIdInput {
   contentId: ID!
