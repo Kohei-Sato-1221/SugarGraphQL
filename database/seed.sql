@@ -73,3 +73,4 @@ INSERT INTO issues(id, url, title, closed, number, author, repository) VALUES
 	('ISSUE_3', 'http://example.com/repo1/issue/3', 'Third Issue', 0, 3, 'U_1', 'REPO_1');
 INSERT INTO projects(id, title, url, owner) VALUES('PJ_1', 'Sugar Project', 'http://example.com/project/1', 'U_1');
 INSERT INTO pullrequests(id, base_ref_name, closed, head_ref_name, url, number, repository) VALUES('PR_1', 'main', 1, 'feature/kinou1', 'http://example.com/repo1/pr/1', 1, 'REPO_1'),('PR_2', 'main', 0, 'feature/kinou2', 'http://example.com/repo1/pr/2', 2, 'REPO_1');
+INSERT INTO projectcards(id, project, issue, pullrequest) VALUES('PC_1', 'PJ_1', "ISSUE_1", "PR_1");

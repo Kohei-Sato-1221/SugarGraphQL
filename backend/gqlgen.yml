@@ -91,6 +91,12 @@ models:
   URI:
     model:
       - github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated/model.URI
+  User:
+    fields:
+      projectV2:
+        resolver: true
+      projectV2s:
+        resolver: true
   Repository:
     fields:
       owner:

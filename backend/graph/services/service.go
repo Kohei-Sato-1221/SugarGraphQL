@@ -61,8 +61,12 @@ type PrService interface {
 }
 
 type ProjectItemService interface {
+	GetProjectItemByID(ctx context.Context, id string) (*model.ProjectV2Item, error)
 	ListProjectItemOwnedByIssue(ctx context.Context, issueID string, after *string, before *string, first *int, last *int) (*model.ProjectV2ItemConnection, error)
+	GetProjectByOwnerAndNumber(ctx context.Context, ownerID string, number int) (*model.ProjectV2, error)
+	ListProjectByOwner(ctx context.Context, ownerID string, after *string, before *string, first *int, last *int) (*model.ProjectV2Connection, error)
 }
+
 type ProjectService interface {
 	GetProjectByID(ctx context.Context, id string) (*model.ProjectV2, error)
 }

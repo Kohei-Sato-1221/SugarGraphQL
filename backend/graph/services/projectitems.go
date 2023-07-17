@@ -15,7 +15,21 @@ type projectItemService struct {
 	exec boil.ContextExecutor
 }
 
+func (p *projectItemService) GetProjectItemByID(ctx context.Context, id string) (*model.ProjectV2Item, error) {
+	item, err := db.FindProjectcard(ctx, p.exec, id,
+		db.ProjectcardColumns.ID,
+		db.ProjectcardColumns.Project,
+		db.ProjectcardColumns.Issue,
+		db.ProjectcardColumns.Pullrequest,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return convertProjectV2Item(item), nil
+}
+
 func (p *projectItemService) ListProjectItemOwnedByIssue(ctx context.Context, issueID string, after *string, before *string, first *int, last *int) (*model.ProjectV2ItemConnection, error) {
+	fmt.Println("ListProjectItemOwnedByIssue")
 	cond := []qm.QueryMod{
 		qm.Select(
 			db.ProjectcardColumns.ID,

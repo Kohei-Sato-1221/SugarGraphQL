@@ -116,6 +116,16 @@ func (r *repositoryResolver) PullRequests(ctx context.Context, obj *model.Reposi
 	panic(fmt.Errorf("not implemented: PullRequests - pullRequests"))
 }
 
+// ProjectV2 is the resolver for the projectV2 field.
+func (r *userResolver) ProjectV2(ctx context.Context, obj *model.User, number int) (*model.ProjectV2, error) {
+	return r.Srv.GetProjectByOwnerAndNumber(ctx, obj.ID, number)
+}
+
+// ProjectV2s is the resolver for the projectV2s field.
+func (r *userResolver) ProjectV2s(ctx context.Context, obj *model.User, after *string, before *string, first *int, last *int) (*model.ProjectV2Connection, error) {
+	return r.Srv.ListProjectByOwner(ctx, obj.ID, after, before, first, last)
+}
+
 // Issue returns generated.IssueResolver implementation.
 func (r *Resolver) Issue() generated.IssueResolver { return &issueResolver{r} }
 
@@ -131,8 +141,12 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 // Repository returns generated.RepositoryResolver implementation.
 func (r *Resolver) Repository() generated.RepositoryResolver { return &repositoryResolver{r} }
 
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+
 type issueResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type projectV2Resolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type repositoryResolver struct{ *Resolver }
+type userResolver struct{ *Resolver }
