@@ -10,6 +10,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated"
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/graph"
@@ -42,7 +43,10 @@ func main() {
 			Loaders: graph.NewLoaders(service),
 		},
 		Directives: graph.Directive,
+		Complexity: graph.ComplexityConfig(),
 	}))
+	//複雑度10以上のクエリは発行できないようにする
+	srv.Use(extension.FixedComplexityLimit(10))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
