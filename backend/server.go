@@ -18,6 +18,7 @@ import (
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/generated"
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/graph"
 	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/graph/services"
+	"github.com/Kohei-Sato-1221/SugarGraphQL/backend/middlewares/auth"
 )
 
 const defaultPort = "8080"
@@ -79,8 +80,11 @@ func main() {
 		return
 	})
 
+	//Next ディレティブから！
+	//https://zenn.dev/hsaki/books/golang-graphql/viewer/auth
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.Handle("/query", auth.AuthMiddleware(srv))
+
 	// SQLBoilerによって発行されるSQLクエリをログ出力させるデバッグオプション
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
